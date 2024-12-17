@@ -26,7 +26,7 @@ export default function Navbar() {
         About Me
       </Link>
       <Link
-        href="/advise"
+        href="/advices"
         className="bg-yellow-400 hover:bg-yellow-200 text-white font-bold px-4 py-2 rounded-md"
       >
         Advise For Me
