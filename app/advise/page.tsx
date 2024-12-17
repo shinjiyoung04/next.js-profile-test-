@@ -19,6 +19,7 @@ export default function AdviceShare() {
   const [publisher, setPublisher] = useState('')
   const [content, setContent] = useState('')
   const [advices, setAdvices] = useState<Advice[]>([])
+  const [editingId, setEditingId] = useState<string | null>(null) // 수정할 ID 저장
 
   useEffect(() => {
     fetchAdvices()
@@ -34,7 +35,7 @@ export default function AdviceShare() {
     e.preventDefault()
 
     const newAdvice = {
-      id: Date.now().toString(), // 또는 UUID 사용
+      id: editingId ? editingId : Date.now().toString(), // 수정 시 기존 ID 사용
       title,
       author,
       publisher,
@@ -43,7 +44,7 @@ export default function AdviceShare() {
     }
 
     await fetch('/api/advices', {
-      method: 'POST',
+      method: editingId ? 'PUT' : 'POST', // 수정 시 PUT 요청 사용
       headers: {
         'Content-Type': 'application/json',
       },
@@ -55,9 +56,26 @@ export default function AdviceShare() {
     setAuthor('')
     setPublisher('')
     setContent('')
+    setEditingId(null) // 수정 모드 종료
 
     // 새로 고침하여 리스트 업데이트
     fetchAdvices()
+  }
+
+  const handleEdit = (advice: Advice) => {
+    setEditingId(advice.id) // 수정할 ID 설정
+    setTitle(advice.title)
+    setAuthor(advice.author)
+    setPublisher(advice.publisher)
+    setContent(advice.content)
+  }
+
+  const handleDelete = async (id: string) => {
+    await fetch(`/api/advices/${id}`, {
+      method: 'DELETE',
+    })
+    
+    fetchAdvices() // 리스트 업데이트
   }
 
   if (!session) {
@@ -91,7 +109,7 @@ export default function AdviceShare() {
           />
         </div>
         <button type="submit" className={styles.submitButton}>
-          제출
+          {editingId ? '수정' : '제출'}
         </button>
       </form>
 
@@ -104,6 +122,12 @@ export default function AdviceShare() {
             <li key={advice.id} className={styles.adviceItem}>
               <h3>작성자: {advice.author}</h3>
               <p>{advice.content}</p>
+              <button onClick={() => handleEdit(advice)} className={styles.editButton}>
+                수정
+              </button>
+              <button onClick={() => handleDelete(advice.id)} className={styles.deleteButton}>
+                삭제
+              </button>
             </li>
           ))}
         </ul>
