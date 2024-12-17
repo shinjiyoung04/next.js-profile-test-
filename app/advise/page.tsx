@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react'
 import { useState, useEffect, FormEvent } from 'react'
-import styles from '@/AdviceShare.module.css'
+import styles from '@/advise.module.css'
 
 interface Advice {
   id: string
